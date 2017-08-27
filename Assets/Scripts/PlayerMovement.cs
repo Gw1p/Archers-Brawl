@@ -4,94 +4,140 @@ using UnityEngine.Networking;
 
 public class PlayerMovement : NetworkBehaviour {
 
+	public float speed;
 	public float maxSpeed = 10f;
-	bool facingRight = true;
+	public bool facingRight = true;
+	public Vector3 camPos;
+	public GameObject playerCanvas;
+	public AudioSync audio;
+
+	private float startTime;
+	private float journeyLength = 0.01f;
+
 	Rigidbody2D rgb;
 
-	Animator anim;
+	NetworkAnimator anim;
 
 	bool grounded = true;
-	float groundRadius = 0.2f;
-	public LayerMask whatIsGround;
+	float groundRadius = 1.2f;
 	public float jumpForce = 700;
 
 	public bool camFollow = true;
 	Transform cam;
+	float distance;
+	bool jumping = false;
 
 	void Start () {
-
-		cam = transform.FindChild ("Main Camera");
+		cam = transform.Find ("Main Camera");
+		cam.transform.parent = null;
 		rgb = gameObject.GetComponent<Rigidbody2D> ();
-		anim = transform.FindChild("Archer").GetComponent<Animator> ();
-
+		anim = GetComponent<NetworkAnimator> ();
+		speed = maxSpeed;
 	}
 	
 	void FixedUpdate () {
 
-		//movement
+		if (!isLocalPlayer)
+			return;
+
+		RaycastHit2D hit = Physics2D.Raycast (transform.position, -Vector2.up, Mathf.Infinity, 1<<8);
+		if (hit.collider != null) {
+			distance = Mathf.Abs (hit.point.y - transform.position.y);
+		}
+
+		grounded = distance <= groundRadius;
+
 		float move = Input.GetAxis ("Horizontal");
 
 		if (move > 0 || move < 0) {
+			anim.animator.SetBool ("Walk", true);
 
-			anim.SetBool ("Walk", true);
+			if (grounded)
+				audio.CmdFootstep ();
 
 		} else if (move == 0) {
-
-			anim.SetBool ("Walk", false);
-
+			anim.animator.SetBool ("Walk", false);
 		}
-			
 
-		rgb.velocity = new Vector2 (move * maxSpeed, rgb.velocity.y);
+		rgb.velocity = new Vector2 (move * speed, rgb.velocity.y);
 
-		if (move > 0 && !facingRight) {
+		if (facingRight && move < 0) {
+			facingRight = false;
+			CmdFlipLeft ();
+		}
 
-			Flip ();
-
-		} else if (move < 0 && facingRight) {
-
-			Flip ();
-
+		if (!facingRight && move > 0) {
+			facingRight = true;		
+			CmdFlipRight ();
 		}
 
 		if (camFollow == true) {
-
-			cam.transform.localPosition = new Vector3 (0, 2.5f, -12.3f);
-
+			camPos.x = gameObject.transform.position.x;
+			float distCovered = (Time.time - startTime) * 0.01f;
+			float fracJourney = distCovered / journeyLength;
+			cam.transform.position = Vector3.Lerp (cam.transform.position, camPos, fracJourney);
 		}
 
 	}
 
 	void Update(){
 
-		if (grounded && Input.GetKeyDown (KeyCode.Space)) {
-
+		if (grounded && Input.GetKeyDown (KeyCode.Space) && jumping == false) {
 			StartCoroutine ("Jump");
+		}
+
+		if (jumping) {
+			if (grounded == false) {
+				jumping = false;
+			}
 		}
 
 	}
 
-	void Flip(){
+	[Command]
+	void CmdFlipLeft(){
 
-		facingRight = !facingRight;
 		Vector3 theScale = transform.localScale;
-		theScale.x *= -1;
-		transform.localScale = theScale;
+		theScale.x = -0.6f;
+
+		Vector3 canvasScale = transform.localScale;
+		canvasScale.x = -0.005724837f;
+		canvasScale.y = 0.005724837f;
+		canvasScale.z = 0.005724837f;
+
+		RpcFlip (theScale, canvasScale);
+
+	}
+
+	[Command]
+	void CmdFlipRight(){
+
+		Vector3 theScale = transform.localScale;
+		theScale.x = 0.6f;
+
+		Vector3 canvasScale = transform.localScale;
+		canvasScale.x = 0.005724837f; 
+		canvasScale.y = 0.005724837f;
+		canvasScale.z = 0.005724837f;
+
+		RpcFlip (theScale, canvasScale);
+
+	}
+
+	[ClientRpc]
+	void RpcFlip(Vector3 newScale, Vector3 newCanvasScale){
+
+		transform.localScale = newScale;
+		playerCanvas.transform.localScale = newCanvasScale;
 
 	}
 
 	IEnumerator Jump(){
-
-		anim.Play ("Jump");
-		grounded = false;
-
+		anim.animator.Play ("Jump");
+		jumping = true;
 		yield return new WaitForSeconds (0.25f);
+		audio.CmdJump ();
 		rgb.AddForce (new Vector2 (0, jumpForce));
-
-		yield return new WaitForSeconds (0.55f);
-
-		grounded = true;
-
 	}
 
 	public void CamFollow(){
@@ -107,13 +153,18 @@ public class PlayerMovement : NetworkBehaviour {
 			} else if (camFollow == false) {
 
 				camFollow = true;
-
-				cam.transform.parent = gameObject.transform;
+				startTime = Time.time;
+				//cam.transform.parent = gameObject.transform;
 
 			}
 
 		}
 
+	}
+
+	public void ChangeSpeed(float speed, float jumpF){
+		maxSpeed = speed;
+		jumpForce = jumpF;
 	}
 
 }

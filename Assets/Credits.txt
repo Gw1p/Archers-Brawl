@@ -1,0 +1,20 @@
+Gw1p Games
+
+Assets used:
+
+Artmasterrich - https://www.assetstore.unity3d.com/en/#!/content/62378
+mariobastos - https://www.assetstore.unity3d.com/en/#!/content/54030
+ARISAN - https://www.assetstore.unity3d.com/en/#!/content/69370
+Red Shark - https://www.assetstore.unity3d.com/en/#!/content/66932
+Unity Technologies - https://www.assetstore.unity3d.com/en/#!/content/41836
+Creepy Cat - https://www.assetstore.unity3d.com/en/#!/content/42285
+Digital Ruby (Jeff Johnson) - https://www.assetstore.unity3d.com/en/#!/content/61904
+kvazi - https://www.assetstore.unity3d.com/en/#!/content/66528
+Liz Molnar - https://raventale.itch.io/parallax-background
+HONETi - https://www.assetstore.unity3d.com/en/#!/content/18748
+Liyo - https://www.assetstore.unity3d.com/en/#!/content/74371
+
+Audio used:
+
+dkiller2204 - https://freesound.org/people/dkiller2204/sounds/366111/ (License: https://creativecommons.org/publicdomain/zero/1.0/)
+"Tech Live" Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 License: http://creativecommons.org/licenses/by/3.0/

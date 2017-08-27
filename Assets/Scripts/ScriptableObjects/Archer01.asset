@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa7d45ec5ea1f9343b7115f98d16c821, type: 3}
+  m_Name: Archer01
+  m_EditorClassIdentifier: 
+  archerImg: {fileID: 21300000, guid: e9fbd5359d29526459432aa51c547206, type: 3}
+  anim: {fileID: 9100000, guid: 6e3f960720f362448a9786f8b2ee3e3f, type: 2}
+  health: 75
+  speed: 12
+  arrowPrefab: {fileID: 1520602168732052, guid: 0a36c923398522c4d8694f8d9bf4d586,
+    type: 2}
+  jumpForce: 750
+  attackCd: 0.75
+  shootDelay: 0.3
